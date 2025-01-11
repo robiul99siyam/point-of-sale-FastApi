@@ -46,7 +46,7 @@ class Product(Base):
     supplier_id = Column(Integer, ForeignKey("suppliers.id"))
     supplier = relationship("Supplier", back_populates="products")
     image = Column(String, nullable=True)  # Product image
-    transactions = relationship("TransactionDetail", back_populates="product")
+    transactions = relationship("Transaction", back_populates="product")
 
 
 class Customer(Base):
@@ -62,15 +62,21 @@ class Customer(Base):
 
 
 
+
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))  # Add foreign key
+    user = relationship("User", back_populates="transactions")  # Define relationship
     product_id = Column(Integer, ForeignKey("products.id"))
     product = relationship("Product", back_populates="transactions")
+    customer_id = Column(Integer, ForeignKey("customers.id"))
+    customer = relationship("Customer", back_populates="transactions")
     quantity = Column(Integer, nullable=False)
-    unit_price = Column(Float, nullable=False)  
-    subtotal = Column(Float, nullable=False)  
+    unit_price = Column(Float, nullable=False)
+    subtotal = Column(Float, nullable=False)
 
 
-    def calulate_amount(self):
+   
+    def calculate_amount(self):
         return self.quantity * self.unit_price

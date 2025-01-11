@@ -4,7 +4,7 @@ from typing import List,Optional
 from database import SessionLocal, engine
 import models
 from fastapi.middleware.cors import CORSMiddleware
-from models import User , Supplier, Category,Product,Transaction
+from models import User , Supplier, Category,Product,Transaction ,Customer
 import os
 from uuid import uuid4
 from fastapi.staticfiles import StaticFiles
@@ -194,7 +194,7 @@ async def get_categories(skip: int = 0, limit: int = 1000, db: Session = Depends
 ################################# Customer Database Methods ############################
 
 
-@app.get("/api/v1/customers")
+@app.get("/api/v1/customers",response_model=List[CustomModel])
 
 async def get_customers(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
     customers = db.query(models.Customer).offset(skip).limit(limit).all()
@@ -226,7 +226,7 @@ async def create_customer(
     else:
         image_url = None
     
-    new_customer = CustomModel(name=name, phone=phone, email=email, address=address, image=image_url)
+    new_customer = Customer(name=name, phone=phone, email=email, address=address, image=image_url)
     db.add(new_customer)
     db.commit()
     db.refresh(new_customer)
@@ -279,17 +279,45 @@ async def get_products(skip: int = 0, limit: int = 1000, db: Session = Depends(g
 
 
 ################ translations #################################
-@app.post("/api/v1/transaction", response_model=TransactionModel)
+@app.post("/api/v1/transactions", response_model=TransactionModel)
 async def create_transaction(
-    date: str = Form(...),  # Could be str or datetime depending on your needs
-    total_amount: float = Form(...),
-    payment_method: str = Form(...),  # "Cash", "Card", or "Digital Wallet"
-    user_id: int = Form(...), # List of Transaction details
-    customer_id: Optional[int] = Form(None),  # Optional for walk-in customers
-    db: Session = Depends(get_db)
+    user_id: int = Form(...),
+    product_id: int = Form(...),
+    quantity: int = Form(...),
+    unit_price: float = Form(...),
+    subtotal: float = Form(...),
+    customer_id: int = Form(...),
+    db: Session = Depends(get_db),
 ):
-   
-    new_transaction = Transaction(date=date, total_amount=total_amount, payment_method=payment_method, user_id=user_id, customer_id=customer_id)
+    # Fetch the product by ID
+    product = db.query(Product).filter_by(id=product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Check stock availability
+    if product.stock < quantity:
+        raise HTTPException(status_code=400, detail="Not enough stock")
+    
+    # Deduct stock
+    product.stock -= quantity
+    
+    # Validate subtotal
+    calculated_subtotal = quantity * unit_price
+    if subtotal != calculated_subtotal:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Subtotal mismatch. Expected: {calculated_subtotal}, Provided: {subtotal}"
+        )
+
+    # Create the transaction
+    new_transaction = Transaction(
+        subtotal=subtotal,
+        quantity=quantity,
+        unit_price=unit_price,
+        user_id=user_id,
+        customer_id=customer_id,
+        product_id=product_id,
+    )
     db.add(new_transaction)
     db.commit()
     db.refresh(new_transaction)
