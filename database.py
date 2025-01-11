@@ -11,23 +11,12 @@
 # Base = declarative_base()
 
 
-import os
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Retrieve values from environment variables
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-
-# Define the PostgreSQL connection URL using environment variables
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+# Define the correct PostgreSQL connection URL
+SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:12345@localhost/pos"
 
 # Create the SQLAlchemy engine for PostgreSQL
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
