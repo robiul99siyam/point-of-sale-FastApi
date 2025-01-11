@@ -9,7 +9,7 @@ import os
 from uuid import uuid4
 from fastapi.staticfiles import StaticFiles
 from schemas import UserModel, CategoryModel, ProductModel,SupplierModel,CustomModel,TransactionModel,UserAdminRole,PaymentRole
-
+import uvicorn
 
 
 app = FastAPI()
@@ -411,3 +411,9 @@ async def create_transaction(
     db.commit()
     db.refresh(new_transaction)
     return new_transaction
+
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
