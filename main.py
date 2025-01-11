@@ -8,7 +8,7 @@ from models import User , Supplier, Category,Product,Transaction ,Customer
 import os
 from uuid import uuid4
 from fastapi.staticfiles import StaticFiles
-from schemas import UserModel, CategoryModel, ProductModel,SupplierModel,CustomModel,TransactionModel
+from schemas import UserModel, CategoryModel, ProductModel,SupplierModel,CustomModel,TransactionModel,UserAdminRole,PaymentRole
 
 
 
@@ -40,7 +40,7 @@ models.Base.metadata.create_all(bind=engine)
 async def create_user(
     username: str = Form(...),
     password: str = Form(...),
-    role: str = Form(...),
+    role: UserAdminRole = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -76,24 +76,54 @@ async def create_user(
 
 async def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     users = db.query(User).offset(skip).limit(limit).all()
+    
     return users
 
-
-@app.put("/api/users/{id}", response_model=UserModel)
-async def update_user(id:int , user_data: UserModel, db : Session = Depends(get_db)):
+@app.get("/api/users/{id}", response_model=UserModel)
+async def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == id).first()
-    print(user)
-
     if not user:
-        raise HTTPException(status_code=404,detail="user not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+
+@app.put("/api/users/{id}",response_model=UserModel)
+
+async def update_user(id:int, username: str = Form(...),
+    password: str = Form(...),
+    role: UserAdminRole = Form(...),
+    upload_file: UploadFile = File(...),
+    db : Session = Depends(get_db)):
+    if upload_file:
+        file_extension = os.path.splitext(upload_file.filename)[-1]
+        if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
+            raise HTTPException(status_code=400, detail="Invalid image format. Only JPG, JPEG, and PNG are allowed.")
+
+        filename = f"{uuid4().hex}{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, filename)
+
+        # Write the file to the uploads directory
+        with open(file_path, "wb") as f:
+            f.write(await upload_file.read())
+
+        image_url = file_path  # Store the file path as the image URL
+    else:
+        image_url = None
+
+    user = db.query(User).filter(User.id == id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     
-    update_user = user_data.dict()
-    for key,value in update_user.items():
-        setattr(user,key,value)
+    user.username = username
+    user.password =  password
+    user.role = role
+    user.image = image_url
     
     db.commit()
     db.refresh(user)
     return user
+
 
 
 
@@ -151,6 +181,62 @@ async def get_supplier(skip: int = 0, limit: int = 1000, db: Session = Depends(g
     return suppliers
 
 
+@app.get("/api/v1/suppliers/{id}", response_model=SupplierModel)
+async def get_supplier_by_id(id: int, db: Session = Depends(get_db)):
+    supplier = db.query(Supplier).filter(Supplier.id == id).first()
+    if not supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    return supplier
+@app.put('/api/v1/suppliers/{id}', response_model=SupplierModel)
+
+async def update_supplier(id:int , name : str = Form(...),
+    contact : str = Form(...),
+    email : str = Form(...),
+    address : str = Form(...),
+    upload_file: UploadFile = File(...),
+    db: Session = Depends(get_db)):
+    if upload_file:
+        file_extension = os.path.splitext(upload_file.filename)[-1]
+        if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
+            raise HTTPException(status_code=400, detail="Invalid image format. Only JPG, JPEG, and PNG are allowed.")
+
+        filename = f"{uuid4().hex}{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, filename)
+
+        # Write the file to the uploads directory
+        with open(file_path, "wb") as f:
+            f.write(await upload_file.read())
+
+        image_url = file_path  # Store the file path as the image URL
+    else:
+        image_url = None
+    
+
+    update_supplier = db.query(Supplier).filter(Supplier.id == id).first()
+    if not update_supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    
+    update_supplier.name = name
+    update_supplier.contact = contact
+    update_supplier.email = email
+    update_supplier.address = address
+    update_supplier.image = image_url
+    
+    db.commit()
+    db.refresh(update_supplier)
+    return update_supplier
+
+
+@app.delete("/api/suppliers/{id}",response_model=SupplierModel)
+
+
+async def delete_supplier(id : int, db: Session = Depends(get_db)):
+    delete_supplier = db.query(Supplier).filter(Supplier.id == id).first()
+    if not delete_supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    db.delete(delete_supplier)
+    db.commit()
+    return delete_supplier
 ##################### Category #################################################
 
 @app.post("/api/v1/categories", response_model=CategoryModel)
@@ -181,6 +267,7 @@ async def create_category(
     db.commit()
     db.refresh(new_category)
     return new_category
+
 
 
 @app.get('/api/v1/category',response_model= List[CategoryModel])
@@ -287,6 +374,7 @@ async def create_transaction(
     unit_price: float = Form(...),
     subtotal: float = Form(...),
     customer_id: int = Form(...),
+    payment_role: PaymentRole = Form(...),
     db: Session = Depends(get_db),
 ):
     # Fetch the product by ID
@@ -317,6 +405,7 @@ async def create_transaction(
         user_id=user_id,
         customer_id=customer_id,
         product_id=product_id,
+        payment_role=payment_role
     )
     db.add(new_transaction)
     db.commit()

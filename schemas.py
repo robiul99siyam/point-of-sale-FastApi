@@ -1,11 +1,26 @@
 from pydantic import BaseModel 
 from typing import List,Optional
+from enum import Enum
+
+class UserAdminRole(str,Enum):
+    ADMIN = "admin"
+    USER = "user"
+    CASHIER = "cashier"
+    MANAGER = "manager"
+
+
+class PaymentRole(str,Enum):
+    CREDIT = "credit"
+    CASH = "cash"
+    BANK_TRANSFER = "bank_transfer"
+    OTHER = "other"
+
 
 class UserModel(BaseModel):
     id: int
     username: str
     password: str
-    role: str
+    role: UserAdminRole
     image: str
 
     class Config:
@@ -61,5 +76,6 @@ class TransactionModel(BaseModel):
     unit_price: float
     subtotal: float
     customer_id:int
+    payment_role: PaymentRole
     class Config:
         orm_mode = True

@@ -75,7 +75,7 @@ class Transaction(Base):
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
-
+    payment_method = Column(String, nullable=True)
 
    
     def calculate_amount(self):
