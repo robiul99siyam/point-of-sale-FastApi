@@ -76,7 +76,3 @@ class Transaction(Base):
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
     payment_method = Column(String, nullable=True)
-
-   
-    def calculate_amount(self):
-        return self.quantity * self.unit_price

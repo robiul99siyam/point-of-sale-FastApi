@@ -24,8 +24,7 @@ class UserModel(BaseModel):
     image: str
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 
 class SupplierModel(BaseModel):
@@ -37,14 +36,15 @@ class SupplierModel(BaseModel):
     image : str
 
     class Config:
-        orm_model  = True
+        from_attributes = True
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
     class Config:
-        orm_model  = True
+       from_attributes = True
+
 class CustomModel(BaseModel):
     id : int
     name : str
@@ -54,7 +54,7 @@ class CustomModel(BaseModel):
     image: str
 
     class Config:
-        orm_model  = True
+        from_attributes = True
 class ProductModel(BaseModel):
     id : int
     name : str
@@ -66,7 +66,7 @@ class ProductModel(BaseModel):
     cost_price : float
     image : str
     class Config:
-        orm_model  = True
+       from_attributes = True
 
 class TransactionModel(BaseModel):
     id: int
@@ -76,6 +76,6 @@ class TransactionModel(BaseModel):
     unit_price: float
     subtotal: float
     customer_id:int
-    payment_role: PaymentRole
+    payment_method: PaymentRole
     class Config:
-        orm_mode = True
+        from_attributes = True

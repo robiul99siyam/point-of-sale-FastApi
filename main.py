@@ -374,7 +374,7 @@ async def create_transaction(
     unit_price: float = Form(...),
     subtotal: float = Form(...),
     customer_id: int = Form(...),
-    payment_role: PaymentRole = Form(...),
+    payment_method: PaymentRole = Form(...),
     db: Session = Depends(get_db),
 ):
     # Fetch the product by ID
@@ -391,6 +391,7 @@ async def create_transaction(
     
     # Validate subtotal
     calculated_subtotal = quantity * unit_price
+    print(calculated_subtotal)
     if subtotal != calculated_subtotal:
         raise HTTPException(
             status_code=400, 
@@ -405,12 +406,20 @@ async def create_transaction(
         user_id=user_id,
         customer_id=customer_id,
         product_id=product_id,
-        payment_role=payment_role
+        payment_method=payment_method
     )
     db.add(new_transaction)
     db.commit()
     db.refresh(new_transaction)
     return new_transaction
+
+
+@app.get("/api/v1/transactions",response_model=List[TransactionModel])
+async def get_transactions(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).offset(skip).limit(limit).all()
+    return transactions
+
+
 
 
 
