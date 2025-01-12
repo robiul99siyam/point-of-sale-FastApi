@@ -1,7 +1,7 @@
 from pydantic import BaseModel 
 from typing import List,Optional
 from enum import Enum
-
+from datetime import date
 class UserAdminRole(str,Enum):
     ADMIN = "admin"
     USER = "user"
@@ -77,5 +77,9 @@ class TransactionModel(BaseModel):
     subtotal: float
     customer_id:int
     payment_method: PaymentRole
+    date: Optional[str] = None
+    profit: Optional[float] = None
+    loss: Optional[float] = None
+
     class Config:
         from_attributes = True

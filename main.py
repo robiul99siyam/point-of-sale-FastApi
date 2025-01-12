@@ -10,7 +10,7 @@ from uuid import uuid4
 from fastapi.staticfiles import StaticFiles
 from schemas import UserModel, CategoryModel, ProductModel,SupplierModel,CustomModel,TransactionModel,UserAdminRole,PaymentRole
 import uvicorn
-
+from datetime import date
 
 app = FastAPI()
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads") 
@@ -333,7 +333,6 @@ async def create_product(
     supplier_id : int = Form(...),
     category_id : int = Form(...),
     upload_file: UploadFile = File(...),
-  
     db: Session = Depends(get_db)
 ):
     if upload_file:
@@ -366,6 +365,9 @@ async def get_products(skip: int = 0, limit: int = 1000, db: Session = Depends(g
 
 
 ################ translations #################################
+
+
+
 @app.post("/api/v1/transactions", response_model=TransactionModel)
 async def create_transaction(
     user_id: int = Form(...),
@@ -375,12 +377,19 @@ async def create_transaction(
     subtotal: float = Form(...),
     customer_id: int = Form(...),
     payment_method: PaymentRole = Form(...),
+    date: Optional[str] = Form(None),
+    profit: float = Form(None),
+    loss: float = Form(None),
     db: Session = Depends(get_db),
 ):
     # Fetch the product by ID
     product = db.query(Product).filter_by(id=product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    # Validate cost price
+    if product.cost_price is None:
+        raise HTTPException(status_code=400, detail="Product cost price is missing")
     
     # Check stock availability
     if product.stock < quantity:
@@ -391,10 +400,9 @@ async def create_transaction(
     
     # Validate subtotal
     calculated_subtotal = quantity * unit_price
-    print(calculated_subtotal)
     if subtotal != calculated_subtotal:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail=f"Subtotal mismatch. Expected: {calculated_subtotal}, Provided: {subtotal}"
         )
 
@@ -406,11 +414,28 @@ async def create_transaction(
         user_id=user_id,
         customer_id=customer_id,
         product_id=product_id,
-        payment_method=payment_method
+        payment_method=payment_method,
+        date=date,
+        profit = profit,
+        loss = loss,
     )
+    
+    # If profit and loss are still None (in case they are not set by the input)
+    if unit_price > product.cost_price:
+        new_transaction.profit = (unit_price - product.cost_price) * quantity
+        new_transaction.loss = 0  # No loss if there is a profit
+    elif unit_price < product.cost_price:
+        new_transaction.loss = (product.cost_price - unit_price) * quantity
+        new_transaction.profit = 0  # No profit if there is a loss
+    else:
+        new_transaction.profit = 0  # No profit or loss if prices are the same
+        new_transaction.loss = 0
+    
+
     db.add(new_transaction)
     db.commit()
     db.refresh(new_transaction)
+
     return new_transaction
 
 

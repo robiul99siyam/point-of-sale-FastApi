@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, Enum
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -76,3 +75,6 @@ class Transaction(Base):
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
     payment_method = Column(String, nullable=True)
+    date = Column(String, nullable=True)
+    profit = Column(Float, nullable=True) 
+    loss = Column(Float, nullable=True)
