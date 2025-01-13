@@ -55,6 +55,8 @@ class CustomModel(BaseModel):
 
     class Config:
         from_attributes = True
+
+
 class ProductModel(BaseModel):
     id : int
     name : str
@@ -62,6 +64,8 @@ class ProductModel(BaseModel):
     description : str
     supplier_id : int
     category_id : int
+    category: Optional[CategoryModel]
+    supplier: Optional[SupplierModel]
     stock : int
     cost_price : float
     image : str

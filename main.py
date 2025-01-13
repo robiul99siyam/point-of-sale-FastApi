@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form 
-from sqlalchemy.orm import Session 
+from sqlalchemy.orm import Session,selectinload 
 from typing import List,Optional
 from database import SessionLocal, engine
 import models
@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from schemas import UserModel, CategoryModel, ProductModel,SupplierModel,CustomModel,TransactionModel,UserAdminRole,PaymentRole
 import uvicorn
 from datetime import date
+
 
 app = FastAPI()
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads") 
@@ -360,7 +361,7 @@ async def create_product(
 
 @app.get("/api/v1/products", response_model=List[ProductModel])
 async def get_products(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
-    products = db.query(Product).offset(skip).limit(limit).all()
+    products = db.query(Product).options(selectinload(Product.category,Product.supplier)).offset(skip).limit(limit).all()
     return products
 
 
