@@ -2,9 +2,11 @@ from pydantic import BaseModel
 from typing import List,Optional
 from enum import Enum
 from datetime import date
+
+
+
 class UserAdminRole(str,Enum):
     ADMIN = "admin"
-    USER = "user"
     CASHIER = "cashier"
     MANAGER = "manager"
 
@@ -13,7 +15,6 @@ class PaymentRole(str,Enum):
     CREDIT = "credit"
     CASH = "cash"
     BANK_TRANSFER = "bank_transfer"
-    OTHER = "other"
 
 
 class UserModel(BaseModel):
@@ -23,6 +24,16 @@ class UserModel(BaseModel):
     role: UserAdminRole
     image: str
 
+
+    class Config:
+        from_attributes = True
+    
+
+
+class ShowUserBaseModel(BaseModel):
+    id:int
+    username : str
+    role : str
     class Config:
         from_attributes = True
 
@@ -38,10 +49,22 @@ class SupplierModel(BaseModel):
     class Config:
         from_attributes = True
 
+class Supplier(BaseModel):
+    id : int
+    name : str
+    class Config:
+        from_attributes = True
+
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
+    class Config:
+       from_attributes = True
+
+class Category(BaseModel):
+    name:str
+    image:str
     class Config:
        from_attributes = True
 
@@ -64,8 +87,8 @@ class ProductModel(BaseModel):
     description : str
     supplier_id : int
     category_id : int
-    category: Optional[CategoryModel]
-    supplier: Optional[SupplierModel]
+    category: List[Category] = []
+    supplier: List[Supplier] = []
     stock : int
     cost_price : float
     image : str
