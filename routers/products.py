@@ -8,7 +8,7 @@ from uuid import uuid4
 import os
 from typing import List
 from schemas import ShowProductBaseModel
-
+from oauth2 import get_current_user
 
 
 routers = APIRouter(
@@ -32,7 +32,8 @@ async def create_product(
     supplier_id : int = Form(...),
     category_id : int = Form(...),
     upload_file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:ShowProductBaseModel = Depends(get_current_user)
 ):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
@@ -58,7 +59,7 @@ async def create_product(
 
 
 @routers.get("/", response_model=List[ShowProductBaseModel])
-async def get_products(db: Session = Depends(get_db)):
+async def get_products(db: Session = Depends(get_db),current_user:ShowProductBaseModel = Depends(get_current_user)):
     products = db.query(Product).all()
     return products
 
@@ -76,7 +77,9 @@ async def update(
     supplier_id : int = Form(...),
     category_id : int = Form(...),
     upload_file: UploadFile = File(...),
-    db:Session = Depends(get_db)):
+    db:Session = Depends(get_db),
+    current_user:ShowProductBaseModel = Depends(get_current_user)
+    ):
     
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
@@ -113,7 +116,7 @@ async def update(
 
 
 @routers.delete("/{id}")
-async def delete(id:int,db : Session = Depends(get_db)):
+async def delete(id:int,db : Session = Depends(get_db),current_user:ShowProductBaseModel = Depends(get_current_user)):
     product_delete = db.query(Product).filter(Product.id ==id).first()
     if not product_delete :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"product{id} is not found")

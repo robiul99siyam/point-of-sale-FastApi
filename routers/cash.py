@@ -3,8 +3,8 @@ from schemas import CurrentCashBaseModel,CashModel
 from models import CurrentCash
 from database import get_db
 from sqlalchemy.orm import Session
-import os
-from typing import List,Optional
+from typing import List
+from oauth2 import get_current_user
 
 
 routers = APIRouter(
@@ -12,7 +12,9 @@ routers = APIRouter(
     tags=['Cash']
 )
 @routers.post("/")
-async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db)):
+async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db) ,current_user:CurrentCashBaseModel = Depends(get_current_user)):
+
+
     cash_amount = 0
 
     for item in request:
@@ -41,12 +43,12 @@ async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db
     }
 
 @routers.get("/",response_model=List[CashModel])
-async def get(db:Session = Depends(get_db)):
+async def get(db:Session = Depends(get_db), current_user:CashModel = Depends(get_current_user)):
     cash = db.query(CurrentCash).all()
     return cash
 
 @routers.delete("/{id}")
-async def get(id:int,db:Session = Depends(get_db)):
+async def get(id:int,db:Session = Depends(get_db) , current_user:CurrentCashBaseModel = Depends(get_current_user)):
 
     cash = db.query(CurrentCash).filter(CurrentCash.id == id).first()
     if not cash:

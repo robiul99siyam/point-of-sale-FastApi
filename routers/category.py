@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from uuid import uuid4
 import os
 from typing import List
-
+from oauth2 import get_current_user
 
 routers = APIRouter(
     prefix="/api/v1/categories",
@@ -24,7 +24,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 async def create_category(
     name : str = Form(...),
     upload_file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user:CategoryModel = Depends(get_current_user)
 ):
     
     if upload_file:
@@ -53,14 +54,14 @@ async def create_category(
 
 @routers.get('/',response_model= List[CategoryModel])
 
-async def get_categories(db: Session = Depends(get_db)):
+async def get_categories(db: Session = Depends(get_db),current_user:CategoryModel = Depends(get_current_user)):
     categories = db.query(Category).all()
     return categories
 
 
 @routers.get("/{id}",response_model=CategoryModel)
 
-async def get_category_individual(id:int,db:Session = Depends(get_db)):
+async def get_category_individual(id:int,db:Session = Depends(get_db),current_user:CategoryModel = Depends(get_current_user)):
 
     category = db.query(Category).filter(Category.id == id).first()
 
@@ -77,7 +78,9 @@ async def update(
     id:int,
     name : str = Form(...),
     upload_file: UploadFile = File(...), 
-    db:Session = Depends(get_db)):
+    db:Session = Depends(get_db),
+    current_user:CategoryModel = Depends(get_current_user)
+    ):
     
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]

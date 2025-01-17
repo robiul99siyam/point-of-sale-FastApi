@@ -32,7 +32,6 @@ class DayClosure(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     closure_date = Column(DateTime, nullable=False, server_default=func.now())
     closed_cash = Column(Float, nullable=False)
-    
     user = relationship("User", back_populates="day_closures")
 
 
@@ -100,7 +99,7 @@ class Transaction(Base):
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
     payment_method = Column(String, nullable=True)
-    date = Column(DateTime, nullable=False, server_default=func.now())
+    date = Column(String, nullable=False)
     profit = Column(Float, nullable=True)
     loss = Column(Float, nullable=True)
     current_cash = Column(Float, nullable=True)
@@ -110,11 +109,11 @@ class Transaction(Base):
     product = relationship("Product", back_populates="transactions")
     customer = relationship("Customer", back_populates="transactions")
 
-    def update_user_cash(self, db_session):
-        current_cash_record = db_session.query(CurrentCash).filter_by(user_id=self.user_id).first()
-        if not current_cash_record:
-            raise Exception("CurrentCash record not found for the user.")
+    # def update_user_cash(self, db_session):
+    #     current_cash_record = db_session.query(CurrentCash).filter_by(user_id=self.user_id).first()
+    #     if not current_cash_record:
+    #         raise Exception("CurrentCash record not found for the user.")
         
-        if self.payment_method.lower() == "cash":
-            current_cash_record.current_cash = max(0, current_cash_record.current_cash - self.subtotal)
-            db_session.commit()
+    #     if self.payment_method.lower() == "cash":
+    #         current_cash_record.current_cash = max(0, current_cash_record.current_cash - self.subtotal)
+    #         db_session.commit()

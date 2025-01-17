@@ -8,7 +8,7 @@ from uuid import uuid4
 import os
 from typing import List
 from hashing import Hash
-
+from oauth2 import get_current_user
 
 
 routers = APIRouter(
@@ -29,7 +29,8 @@ async def create_user(
     password: str = Form(...),
     role: UserAdminRole = Form(...),
     image: UploadFile = File(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
     # Handle image upload
     if image:
@@ -66,13 +67,13 @@ async def create_user(
 
 @routers.get("/",response_model=List[UserModel])
 
-async def get_users(db: Session = Depends(get_db)):
+async def get_users(db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     users = db.query(User).all()
     
     return users
 
 @routers.get("/{id}", response_model=UserModel)
-async def get_user(id: int, db: Session = Depends(get_db)):
+async def get_user(id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     user = db.query(User).filter(User.id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -86,7 +87,8 @@ async def update_user(id:int, username: str = Form(...),
     password: str = Form(...),
     role: UserAdminRole = Form(...),
     upload_file: UploadFile = File(None),
-    db : Session = Depends(get_db)):
+    db : Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
         if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
@@ -121,7 +123,7 @@ async def update_user(id:int, username: str = Form(...),
 
 
 @routers.delete("/{id}" , response_model=UserModel)
-async def delete_user(id : int,db : Session = Depends(get_db)):
+async def delete_user(id : int,db : Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     user = db.query(User).filter(User.id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

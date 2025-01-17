@@ -6,7 +6,8 @@ from database import get_db
 from sqlalchemy.orm import Session
 import os
 from typing import List,Optional
-
+from oauth2 import get_current_user
+from datetime import datetime
 
 
 
@@ -36,7 +37,7 @@ async def create_transaction(
     current_cash: float = Form(None),
     db: Session = Depends(get_db),
 ):
-    # Fetch the product by ID
+
     product = db.query(Product).filter_by(id=product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -60,26 +61,7 @@ async def create_transaction(
             detail=f"Subtotal mismatch. Expected: {calculated_subtotal}, Provided: {subtotal}"
         )
 
-    # Fetch user and current_cash
-    user = db.query(User).filter_by(id=user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    user_current_cash = db.query(CurrentCash).filter_by(user_id=user_id).first()
-    if payment_method == PaymentRole.CASH:
-        if not user_current_cash:
-            raise HTTPException(
-                status_code=400,
-                detail="Current cash record not found for the user"
-            )
-        if user_current_cash.current_cash < subtotal:
-            raise HTTPException(
-                status_code=400,
-                detail="Insufficient current cash for the transaction"
-            )
-        user_current_cash.current_cash -= subtotal
-
-    # Create the transaction
+   
     new_transaction = Transaction(
         subtotal=subtotal,
         quantity=quantity,
@@ -91,7 +73,7 @@ async def create_transaction(
         date=date,
         profit=profit,
         loss=loss,
-        current_cash=user_current_cash.current_cash if user_current_cash else None
+        current_cash=current_cash
     )
 
     if unit_price > product.cost_price:
