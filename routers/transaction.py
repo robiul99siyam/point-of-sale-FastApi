@@ -12,7 +12,7 @@ from typing import List,Optional
 
 routers = APIRouter(
     prefix="/api/v1/transactions",
-    tags=["Supplier"]
+    tags=["Transactions"]
 )
 
 
@@ -34,6 +34,7 @@ async def create_transaction(
     date: Optional[str] = Form(None),
     profit: float = Form(None),
     loss: float = Form(None),
+    current_cash: float = Form(None),
     db: Session = Depends(get_db),
 ):
     # Fetch the product by ID
@@ -72,17 +73,30 @@ async def create_transaction(
         date=date,
         profit = profit,
         loss = loss,
+        current_cash = current_cash
     )
     
-    # If profit and loss are still None (in case they are not set by the input)
+
+
+
+    if payment_method == PaymentRole.CASH:
+        # if current_cash < subtotal:
+        #     raise HTTPException(
+        #         status_code=400,
+        #         detail="Insufficient current cash for the transaction"
+        #     )
+        current_cash += subtotal
+   
+    
     if unit_price > product.cost_price:
         new_transaction.profit = (unit_price - product.cost_price) * quantity
-        new_transaction.loss = 0  # No loss if there is a profit
+        new_transaction.loss = 0  
+
     elif unit_price < product.cost_price:
         new_transaction.loss = (product.cost_price - unit_price) * quantity
-        new_transaction.profit = 0  # No profit if there is a loss
+        new_transaction.profit = 0  
     else:
-        new_transaction.profit = 0  # No profit or loss if prices are the same
+        new_transaction.profit = 0  
         new_transaction.loss = 0
     
 
@@ -94,7 +108,7 @@ async def create_transaction(
 
 
 @routers.get("/",response_model=List[TransactionModel])
-async def get_transactions(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
-    transactions = db.query(Transaction).offset(skip).limit(limit).all()
+async def get_transactions( db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).all()
     return transactions
 

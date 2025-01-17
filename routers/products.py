@@ -1,14 +1,13 @@
 from fastapi import APIRouter,Form ,File,UploadFile ,Depends,HTTPException
 from typing import Optional
 from fastapi.staticfiles import StaticFiles
-from schemas import ProductModel
 from models import Product
 from database import get_db
 from sqlalchemy.orm import Session
 from uuid import uuid4
 import os
 from typing import List
-
+from schemas import ShowProductBaseModel
 
 
 
@@ -23,7 +22,7 @@ UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-@routers.post("/", response_model=ProductModel)
+@routers.post("/")
 async def create_product(
     name : str = Form(...),
     selling_price : float = Form(...),
@@ -58,7 +57,7 @@ async def create_product(
     return new_product
 
 
-@routers.get("/", response_model=List[ProductModel])
+@routers.get("/", response_model=List[ShowProductBaseModel])
 async def get_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     return products

@@ -21,7 +21,7 @@ routers.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@routers.post("/", response_model=SupplierModel)
+@routers.post("/")
 async def create_supplier(
     name : str = Form(...),
     contact : str = Form(...),
@@ -55,8 +55,8 @@ async def create_supplier(
 
 
 @routers.get("/", response_model=List[SupplierModel])
-async def get_supplier(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
-    suppliers = db.query(Supplier).offset(skip).limit(limit).all()
+async def get_supplier(db: Session = Depends(get_db)):
+    suppliers = db.query(Supplier).all()
     return suppliers
 
 

@@ -1,7 +1,6 @@
 from pydantic import BaseModel 
 from typing import List,Optional
 from enum import Enum
-from datetime import date
 
 
 
@@ -26,7 +25,7 @@ class UserModel(BaseModel):
 
 
     class Config:
-        from_attributes = True
+        orm_mode = True
     
 
 
@@ -35,7 +34,7 @@ class ShowUserBaseModel(BaseModel):
     username : str
     role : str
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class SupplierModel(BaseModel):
@@ -47,26 +46,26 @@ class SupplierModel(BaseModel):
     image : str
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class Supplier(BaseModel):
     id : int
     name : str
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
     class Config:
-       from_attributes = True
+       orm_mode = True 
 
 class Category(BaseModel):
     name:str
     image:str
     class Config:
-       from_attributes = True
+       orm_mode = True 
 
 class CustomModel(BaseModel):
     id : int
@@ -77,7 +76,7 @@ class CustomModel(BaseModel):
     image: str
 
     class Config:
-        from_attributes = True
+        orm_mode = True 
 
 
 class ProductModel(BaseModel):
@@ -87,13 +86,27 @@ class ProductModel(BaseModel):
     description : str
     supplier_id : int
     category_id : int
-    category: List[Category] = []
-    supplier: List[Supplier] = []
     stock : int
     cost_price : float
     image : str
     class Config:
-       from_attributes = True
+       orm_mode = True 
+
+
+class ShowProductBaseModel(BaseModel):
+    id: int
+    name: str
+    selling_price: float
+    description: str
+    category: List[Category] = []
+    supplier: List[Supplier] = []
+    stock: int
+    cost_price: float
+    image: str
+
+    class Config:
+        orm_mode = True
+
 
 class TransactionModel(BaseModel):
     id: int
@@ -107,6 +120,6 @@ class TransactionModel(BaseModel):
     date: Optional[str] = None
     profit: Optional[float] = None
     loss: Optional[float] = None
-
+    current_cash : Optional[float] = None
     class Config:
-        from_attributes = True
+        orm_mode = True 

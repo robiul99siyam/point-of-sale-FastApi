@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from uuid import uuid4
 import os
 from typing import List
+from hashing import Hash
 
 
 
@@ -48,9 +49,10 @@ async def create_user(
         image_url = None
 
     # Create a new user in the database
+    hashPassword = Hash.bcrypt(password)
     new_user = User(
         username=username,
-        password=password,
+        password=hashPassword,
         role=role,
         image=image_url
     )
