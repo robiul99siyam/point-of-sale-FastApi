@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Form ,File,UploadFile ,Depends,HTTPException
+from fastapi import APIRouter,Form ,File,UploadFile ,Depends,HTTPException,status
 from fastapi.staticfiles import StaticFiles
 from schemas import UserAdminRole,ShowUserBaseModel,UserModel
 from models import User
@@ -28,7 +28,7 @@ async def create_user(
     username: str = Form(...),
     password: str = Form(...),
     role: UserAdminRole = Form(...),
-    image: UploadFile = File(None),
+    image: UploadFile = File(),
     db: Session = Depends(get_db)
 ):
     # Handle image upload
@@ -64,14 +64,14 @@ async def create_user(
 
 
 
-@routers.get("/",response_model=List[ShowUserBaseModel])
+@routers.get("/",response_model=List[UserModel])
 
 async def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     
     return users
 
-@routers.get("/{id}", response_model=ShowUserBaseModel)
+@routers.get("/{id}", response_model=UserModel)
 async def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == id).first()
     if not user:
@@ -85,7 +85,7 @@ async def get_user(id: int, db: Session = Depends(get_db)):
 async def update_user(id:int, username: str = Form(...),
     password: str = Form(...),
     role: UserAdminRole = Form(...),
-    upload_file: UploadFile = File(...),
+    upload_file: UploadFile = File(None),
     db : Session = Depends(get_db)):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
@@ -115,6 +115,7 @@ async def update_user(id:int, username: str = Form(...),
     db.commit()
     db.refresh(user)
     return f"{id}Update Successfull done"
+
 
 
 

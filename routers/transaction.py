@@ -61,6 +61,13 @@ async def create_transaction(
             detail=f"Subtotal mismatch. Expected: {calculated_subtotal}, Provided: {subtotal}"
         )
 
+    if payment_method == PaymentRole.CASH:
+        if current_cash < subtotal:
+            raise HTTPException(
+                status_code=400,
+                detail="Insufficient current cash for the transaction"
+            )
+        current_cash += subtotal
     # Create the transaction
     new_transaction = Transaction(
         subtotal=subtotal,
@@ -79,13 +86,7 @@ async def create_transaction(
 
 
 
-    if payment_method == PaymentRole.CASH:
-        # if current_cash < subtotal:
-        #     raise HTTPException(
-        #         status_code=400,
-        #         detail="Insufficient current cash for the transaction"
-        #     )
-        current_cash += subtotal
+    
    
     
     if unit_price > product.cost_price:

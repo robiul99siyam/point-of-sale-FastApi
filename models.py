@@ -1,94 +1,117 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from database import Base
-from datetime import datetime
+
 
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
     password = Column(String, nullable=False)
-    role = Column(String, nullable=False)  
-    image = Column(String, nullable=True)  
-    current_cash = Column(Float, default=0.0, nullable=False) 
-    transactions = relationship("Transaction", back_populates="user")
-    day_closures = relationship("DayClosure", back_populates="user")
+    role = Column(String, nullable=False)
+    image = Column(String, nullable=True)
+    
+    # Relationships
+    transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
+    day_closures = relationship("DayClosure", back_populates="user", cascade="all, delete")
+    current_cash = relationship("CurrentCash", back_populates="user", cascade="all, delete", uselist=False)
+
+
+class CurrentCash(Base):
+    __tablename__ = "current_cash"
+    id = Column(Integer, primary_key=True, index=True)
+    current_cash = Column(Float, default=0.0, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    user = relationship("User", back_populates="current_cash")
+
 
 class DayClosure(Base):
     __tablename__ = "day_closures"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    closure_date = Column(DateTime, nullable=False, server_default=func.now())
+    closed_cash = Column(Float, nullable=False)
+    
     user = relationship("User", back_populates="day_closures")
-    closure_date = Column(DateTime, nullable=False, default=datetime.utcnow)
-    closed_cash = Column(Float, nullable=False)  
 
 
 class Supplier(Base):
     __tablename__ = "suppliers"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String, nullable=False, index=True)
     contact = Column(String, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, nullable=False, index=True)
     address = Column(String, nullable=False)
-    image = Column(String, nullable=True) 
-    products = relationship("Product", back_populates="supplier")
+    image = Column(String, nullable=True)
+    
+    # Relationships
+    products = relationship("Product", back_populates="supplier", cascade="all, delete")
 
 
 class Category(Base):
     __tablename__ = "categories"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
-    image = Column(String, nullable=True)  
-    products = relationship("Product", back_populates="category")
+    image = Column(String, nullable=True)
+    
+    # Relationships
+    products = relationship("Product", back_populates="category", cascade="all, delete")
 
 
 class Product(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String, nullable=False, index=True)
     description = Column(String, nullable=True)
-    category_id = Column(Integer, ForeignKey("categories.id"))
+    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"))
+    stock = Column(Integer, nullable=False, default=0)
+    cost_price = Column(Float, nullable=False)
+    selling_price = Column(Float, nullable=False)
+    supplier_id = Column(Integer, ForeignKey("suppliers.id", ondelete="SET NULL"))
+    image = Column(String, nullable=True)
+    
+    # Relationships
     category = relationship("Category", back_populates="products")
-    stock = Column(Integer, nullable=False, default=0)  
-    cost_price = Column(Float, nullable=False)  
-    selling_price = Column(Float, nullable=False)  
-    supplier_id = Column(Integer, ForeignKey("suppliers.id"))
     supplier = relationship("Supplier", back_populates="products")
-    image = Column(String, nullable=True) 
-    transactions = relationship("Transaction", back_populates="product")
+    transactions = relationship("Transaction", back_populates="product", cascade="all, delete")
 
 
 class Customer(Base):
     __tablename__ = "customers"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String, nullable=False, index=True)
     phone = Column(String, nullable=True)
-    email = Column(String, unique=True, index=True, nullable=True)
+    email = Column(String, unique=True, nullable=True, index=True)
     address = Column(String, nullable=True)
-    image = Column(String, nullable=True)  
-    transactions = relationship("Transaction", back_populates="customer")
+    image = Column(String, nullable=True)
+    
+    # Relationships
+    transactions = relationship("Transaction", back_populates="customer", cascade="all, delete")
 
 
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))  
-    user = relationship("User", back_populates="transactions") 
-    product_id = Column(Integer, ForeignKey("products.id"))
-    product = relationship("Product", back_populates="transactions")
-    customer_id = Column(Integer, ForeignKey("customers.id"))
-    customer = relationship("Customer", back_populates="transactions")
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"))
+    customer_id = Column(Integer, ForeignKey("customers.id", ondelete="SET NULL"))
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
     payment_method = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    profit = Column(Float, nullable=True) 
+    date = Column(DateTime, nullable=False, server_default=func.now())
+    profit = Column(Float, nullable=True)
     loss = Column(Float, nullable=True)
     current_cash = Column(Float, nullable=True)
+    
+    # Relationships
+    user = relationship("User", back_populates="transactions")
+    product = relationship("Product", back_populates="transactions")
+    customer = relationship("Customer", back_populates="transactions")
 
     def update_user_cash(self, db_session):
-        user = db_session.query(User).filter_by(id=self.user_id).first()
+        user = db_session.query(User).get(self.user_id)
         if user and self.payment_method == "cash":
-            user.current_cash -= self.subtotal
+            user.current_cash.current_cash = max(0, user.current_cash.current_cash - self.subtotal)
             db_session.commit()

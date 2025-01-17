@@ -103,7 +103,7 @@ async def update_supplier(id:int , name : str = Form(...),
     
     db.commit()
     db.refresh(update_supplier)
-    return update_supplier
+    return "update_supplier done"
 
 
 @routers.delete("/{id}",response_model=SupplierModel)

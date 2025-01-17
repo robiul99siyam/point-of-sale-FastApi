@@ -26,15 +26,24 @@ class UserModel(BaseModel):
 
     class Config:
         orm_mode = True
-    
+
+
+class CurrentCashBaseModel(BaseModel):
+    id : int
+    current_cash : str
+    user_id  : int
+    class Config:
+        orm_mode = True
 
 
 class ShowUserBaseModel(BaseModel):
+
     id:int
     username : str
-    role : str
     class Config:
         orm_mode = True
+
+
 
 
 class SupplierModel(BaseModel):
