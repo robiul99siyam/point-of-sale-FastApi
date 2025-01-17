@@ -25,15 +25,14 @@ class UserModel(BaseModel):
 
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CurrentCashBaseModel(BaseModel):
-    id : int
-    current_cash : str
+    current_cash : float
     user_id  : int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ShowUserBaseModel(BaseModel):
@@ -41,9 +40,15 @@ class ShowUserBaseModel(BaseModel):
     id:int
     username : str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
+class CashModel(BaseModel):
+    id:int
+    current_cash : float
+    user : Optional[ShowUserBaseModel] = None
 
+    class Config:
+        from_attributes = True
 
 
 class SupplierModel(BaseModel):
@@ -55,26 +60,26 @@ class SupplierModel(BaseModel):
     image : str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Supplier(BaseModel):
     id : int
     name : str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
     class Config:
-       orm_mode = True 
+       from_attributes = True 
 
 class Category(BaseModel):
+    id : int
     name:str
-    image:str
     class Config:
-       orm_mode = True 
+       from_attributes = True 
 
 class CustomModel(BaseModel):
     id : int
@@ -85,7 +90,7 @@ class CustomModel(BaseModel):
     image: str
 
     class Config:
-        orm_mode = True 
+        from_attributes = True 
 
 
 class ProductModel(BaseModel):
@@ -99,7 +104,7 @@ class ProductModel(BaseModel):
     cost_price : float
     image : str
     class Config:
-       orm_mode = True 
+       from_attributes = True 
 
 
 class ShowProductBaseModel(BaseModel):
@@ -107,14 +112,14 @@ class ShowProductBaseModel(BaseModel):
     name: str
     selling_price: float
     description: str
-    category: List[Category] = []
-    supplier: List[Supplier] = []
+    category: Optional[Category] = None  
+    supplier: Optional[Supplier] = None  
     stock: int
     cost_price: float
     image: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TransactionModel(BaseModel):
@@ -131,4 +136,4 @@ class TransactionModel(BaseModel):
     loss: Optional[float] = None
     current_cash : Optional[float] = None
     class Config:
-        orm_mode = True 
+        from_attributes = True 

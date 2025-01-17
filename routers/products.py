@@ -30,7 +30,7 @@ async def create_product(
     cost_price : str = Form(...),
     stock : int = Form(...),
     supplier_id : int = Form(...),
-    product_id : int = Form(...),
+    category_id : int = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -50,7 +50,7 @@ async def create_product(
     else:
         image_url = None
     
-    new_product = Product(name=name, selling_price=selling_price, stock=stock, description=description, cost_price=cost_price, supplier_id=supplier_id, product_id=product_id, image=image_url)
+    new_product = Product(name=name, selling_price=selling_price, stock=stock, description=description, cost_price=cost_price, supplier_id=supplier_id, category_id=category_id, image=image_url)
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -74,7 +74,7 @@ async def update(
     cost_price : str = Form(...),
     stock : int = Form(...),
     supplier_id : int = Form(...),
-    product_id : int = Form(...),
+    category_id : int = Form(...),
     upload_file: UploadFile = File(...),
     db:Session = Depends(get_db)):
     
@@ -103,7 +103,7 @@ async def update(
     update_product.selling_price = selling_price
     update_product.cost_price = cost_price
     update_product.supplier_id = supplier_id
-    update_product.product_id = product_id
+    update_product.category_id = category_id
     update_product.stock = stock
     update_product.description = description
     

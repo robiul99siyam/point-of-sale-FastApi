@@ -111,7 +111,10 @@ class Transaction(Base):
     customer = relationship("Customer", back_populates="transactions")
 
     def update_user_cash(self, db_session):
-        user = db_session.query(User).get(self.user_id)
-        if user and self.payment_method == "cash":
-            user.current_cash.current_cash = max(0, user.current_cash.current_cash - self.subtotal)
+        current_cash_record = db_session.query(CurrentCash).filter_by(user_id=self.user_id).first()
+        if not current_cash_record:
+            raise Exception("CurrentCash record not found for the user.")
+        
+        if self.payment_method.lower() == "cash":
+            current_cash_record.current_cash = max(0, current_cash_record.current_cash - self.subtotal)
             db_session.commit()
