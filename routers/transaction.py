@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Form ,Depends,HTTPException
+from fastapi import APIRouter,Form ,Depends,HTTPException,status
 from fastapi.staticfiles import StaticFiles
 from schemas import TransactionModel,PaymentRole
 from models import Transaction,Product,CurrentCash,User
@@ -22,13 +22,13 @@ UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-@routers.post("/", response_model=TransactionModel)
+@routers.post("/",status_code=status.HTTP_201_CREATED)
 async def create_transaction(
     user_id: int = Form(...),
     product_id: int = Form(...),
-    quantity: int = Form(...),
-    unit_price: float = Form(...),
-    subtotal: float = Form(...),
+    quantity: int = Form(...,ge=1),
+    unit_price: float = Form(...,gt=1),
+    subtotal: float = Form(...,gt=1),
     customer_id: int = Form(...),
     payment_method: PaymentRole = Form(...),
     date: Optional[str] = Form(None),
@@ -37,7 +37,6 @@ async def create_transaction(
     current_cash: float = Form(None),
     db: Session = Depends(get_db),
 ):
-
     product = db.query(Product).filter_by(id=product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -61,7 +60,15 @@ async def create_transaction(
             detail=f"Subtotal mismatch. Expected: {calculated_subtotal}, Provided: {subtotal}"
         )
 
-   
+    # Handle current cash
+    user = db.query(CurrentCash).filter_by(user_id=user_id).first()
+    if user:
+        if payment_method == PaymentRole.CASH:
+            user.current_cash += subtotal
+            db.add(user)  
+            db.commit()  
+            db.refresh(user)  
+
     new_transaction = Transaction(
         subtotal=subtotal,
         quantity=quantity,
@@ -73,17 +80,18 @@ async def create_transaction(
         date=date,
         profit=profit,
         loss=loss,
-        current_cash=current_cash
+        current_cash=user.current_cash if user else 0  # Use updated cash value
     )
 
+    # Calculate profit and loss
     if unit_price > product.cost_price:
         new_transaction.profit = (unit_price - product.cost_price) * quantity
-        new_transaction.loss = 0  
+        new_transaction.loss = 0
     elif unit_price < product.cost_price:
         new_transaction.loss = (product.cost_price - unit_price) * quantity
-        new_transaction.profit = 0  
+        new_transaction.profit = 0
     else:
-        new_transaction.profit = 0  
+        new_transaction.profit = 0
         new_transaction.loss = 0
     
     db.add(new_transaction)
@@ -92,7 +100,7 @@ async def create_transaction(
 
     return new_transaction
 
-@routers.get("/",response_model=List[TransactionModel])
+@routers.get("/",response_model=List[TransactionModel],status_code=status.HTTP_200_OK)
 async def get_transactions( db: Session = Depends(get_db)):
     transactions = db.query(Transaction).all()
     return transactions

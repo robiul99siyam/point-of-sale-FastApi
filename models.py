@@ -30,7 +30,7 @@ class DayClosure(Base):
     __tablename__ = "day_closures"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    closure_date = Column(DateTime, nullable=False, server_default=func.now())
+    closure_date = Column(String, nullable=False)
     closed_cash = Column(Float, nullable=False)
     user = relationship("User", back_populates="day_closures")
 

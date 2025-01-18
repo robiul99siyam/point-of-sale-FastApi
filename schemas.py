@@ -24,14 +24,14 @@ class UserModel(BaseModel):
     image: str
 
 
-    class Config:
+    class Config():
         from_attributes = True
 
 
 class CurrentCashBaseModel(BaseModel):
     current_cash : float
     user_id  : int
-    class Config:
+    class Config():
         from_attributes = True
 
 
@@ -39,7 +39,7 @@ class ShowUserBaseModel(BaseModel):
 
     id:int
     username : str
-    class Config:
+    class Config():
         from_attributes = True
 
 class CashModel(BaseModel):
@@ -47,7 +47,7 @@ class CashModel(BaseModel):
     current_cash : float
     user : Optional[ShowUserBaseModel] = None
 
-    class Config:
+    class Config():
         from_attributes = True
 
 
@@ -59,26 +59,26 @@ class SupplierModel(BaseModel):
     address : str
     image : str
 
-    class Config:
+    class Config():
         from_attributes = True
 
 class Supplier(BaseModel):
     id : int
     name : str
-    class Config:
+    class Config():
         from_attributes = True
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
-    class Config:
+    class Config():
        from_attributes = True 
 
 class Category(BaseModel):
     id : int
     name:str
-    class Config:
+    class Config():
        from_attributes = True 
 
 class CustomModel(BaseModel):
@@ -89,7 +89,7 @@ class CustomModel(BaseModel):
     address: str
     image: str
 
-    class Config:
+    class Config():
         from_attributes = True 
 
 
@@ -103,7 +103,7 @@ class ProductModel(BaseModel):
     stock : int
     cost_price : float
     image : str
-    class Config:
+    class Config():
        from_attributes = True 
 
 
@@ -118,7 +118,7 @@ class ShowProductBaseModel(BaseModel):
     cost_price: float
     image: str
 
-    class Config:
+    class Config():
         from_attributes = True
 
 
@@ -135,7 +135,7 @@ class TransactionModel(BaseModel):
     profit: Optional[float] = None
     loss: Optional[float] = None
     current_cash : Optional[float] = None
-    class Config:
+    class Config():
         from_attributes = True 
 
 
@@ -153,3 +153,21 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+
+
+class DayClosedBaseMode(BaseModel):
+    user_id : int
+    closure_date : str
+    closed_cash : float
+
+    class Config():
+        orm_mode = True
+
+
+class ShowDayClosedBaseMode(BaseModel):
+    user : Optional[ShowUserBaseModel] = None
+    closure_date : str
+    closed_cash : float
+
+    class Config():
+        orm_mode = True

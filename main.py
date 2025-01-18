@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from database import  engine
 import models
 from fastapi.middleware.cors import CORSMiddleware
-from routers import users,suppliers,category,customer,products,transaction,cash,login
+from routers import users,suppliers,category,customer,products,transaction,cash,login,dayClosed
 
 app = FastAPI()
 
@@ -22,5 +22,5 @@ app.include_router(products.routers)
 app.include_router(transaction.routers)
 app.include_router(cash.routers)
 app.include_router(login.routers)
-
+app.include_router(dayClosed.routers)
 
