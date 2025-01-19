@@ -65,22 +65,22 @@ async def get_products(db: Session = Depends(get_db)):
 
 
 
-@routers.put("/{id}",response_model=ShowProductBaseModel)
 
+
+@routers.put("/{id}", response_model=ShowProductBaseModel)
 async def update(
-    id:int,
-    name : str = Form(...),
-    selling_price : float = Form(...),
-    description : Optional[str] = Form(None),
-    cost_price : str = Form(...),
-    uom : str = Form(...),
-    stock : int = Form(...),
-    supplier_id : int = Form(...),
-    category_id : int = Form(...),
+    id: int,
+    name: str = Form(...),
+    selling_price: float = Form(...),
+    description: Optional[str] = Form(None),
+    cost_price: str = Form(...),
+    uom: str = Form(...),
+    stock: int = Form(...),
+    supplier_id: int = Form(...),
+    category_id: int = Form(...),
     upload_file: UploadFile = File(...),
-    db:Session = Depends(get_db)
-    ):
-    
+    db: Session = Depends(get_db),
+):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
         if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
@@ -95,12 +95,14 @@ async def update(
 
         image_url = file_path  # Store the file path as the image URL
     else:
-        image_url = None   
-    
+        image_url = None
+
     update_product = db.query(Product).filter(Product.id == id).first()
     if not update_product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"product {id} is not found")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Product {id} not found"
+        )
+
     update_product.name = name
     update_product.image = image_url
     update_product.selling_price = selling_price
@@ -110,10 +112,10 @@ async def update(
     update_product.stock = stock
     update_product.description = description
     update_product.uom = uom
-    
+
     db.commit()
     db.refresh(update_product)
-    return "update product done"
+    return update_product
 
 
 @routers.delete("/{id}")
