@@ -34,7 +34,7 @@ async def create_transaction(
     date: Optional[str] = Form(None),
     profit: float = Form(None),
     loss: float = Form(None),
-    current_cash: float = Form(None),
+    uom : str = Form(...),
     db: Session = Depends(get_db),
 ):
     product = db.query(Product).filter_by(id=product_id).first()
@@ -73,6 +73,7 @@ async def create_transaction(
         subtotal=subtotal,
         quantity=quantity,
         unit_price=unit_price,
+        uom=uom,
         user_id=user_id,
         customer_id=customer_id,
         product_id=product_id,

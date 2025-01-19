@@ -69,6 +69,7 @@ class Product(Base):
     selling_price = Column(Float, nullable=False)
     supplier_id = Column(Integer, ForeignKey("suppliers.id", ondelete="SET NULL"))
     image = Column(String, nullable=True)
+    uom = Column(String,nullable=True)
     
     # Relationships
     category = relationship("Category", back_populates="products")
@@ -103,6 +104,7 @@ class Transaction(Base):
     profit = Column(Float, nullable=True)
     loss = Column(Float, nullable=True)
     current_cash = Column(Float, nullable=True)
+    uom = Column(String,nullable=True)
     
     # Relationships
     user = relationship("User", back_populates="transactions")

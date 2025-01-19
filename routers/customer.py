@@ -25,7 +25,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @routers.get("/",response_model=List[CustomModel])
 
-async def get_customers(db: Session = Depends(get_db),current_user:CustomModel = Depends(get_current_user)):
+async def get_customers(db: Session = Depends(get_db)):
     customers = db.query(Customer).all()
     return customers
 
@@ -37,8 +37,7 @@ async def create_customer(
     email : str = Form(...),
     address : str = Form(...),
     upload_file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user:CustomModel = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
@@ -73,8 +72,7 @@ async def update(
     id:int,
     name : str = Form(...),
     upload_file: UploadFile = File(...), 
-    db:Session = Depends(get_db),
-    current_user:CustomModel = Depends(get_current_user)
+    db:Session = Depends(get_db)
     ):
     
     if upload_file:
@@ -105,7 +103,7 @@ async def update(
 
 
 @routers.delete("/{id}")
-async def delete(id:int,db : Session = Depends(get_db),current_user:CustomModel = Depends(get_current_user)):
+async def delete(id:int,db : Session = Depends(get_db)):
     customer_delete = db.query(Customer).filter(Customer.id ==id).first()
     if not customer_delete :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"customer{id} is not found")

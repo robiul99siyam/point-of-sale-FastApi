@@ -28,12 +28,12 @@ async def create_product(
     selling_price : float = Form(...),
     description : Optional[str] = Form(None),
     cost_price : str = Form(...),
+    uom : str = Form(...),
     stock : int = Form(...),
     supplier_id : int = Form(...),
     category_id : int = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user:ShowProductBaseModel = Depends(get_current_user)
 ):
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
@@ -51,7 +51,7 @@ async def create_product(
     else:
         image_url = None
     
-    new_product = Product(name=name, selling_price=selling_price, stock=stock, description=description, cost_price=cost_price, supplier_id=supplier_id, category_id=category_id, image=image_url)
+    new_product = Product(name=name, selling_price=selling_price, stock=stock, description=description, cost_price=cost_price, supplier_id=supplier_id, category_id=category_id, image=image_url , uom=uom)
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -59,7 +59,7 @@ async def create_product(
 
 
 @routers.get("/", response_model=List[ShowProductBaseModel])
-async def get_products(db: Session = Depends(get_db),current_user:ShowProductBaseModel = Depends(get_current_user)):
+async def get_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     return products
 
@@ -73,12 +73,12 @@ async def update(
     selling_price : float = Form(...),
     description : Optional[str] = Form(None),
     cost_price : str = Form(...),
+    uom : str = Form(...),
     stock : int = Form(...),
     supplier_id : int = Form(...),
     category_id : int = Form(...),
     upload_file: UploadFile = File(...),
-    db:Session = Depends(get_db),
-    current_user:ShowProductBaseModel = Depends(get_current_user)
+    db:Session = Depends(get_db)
     ):
     
     if upload_file:
@@ -109,6 +109,7 @@ async def update(
     update_product.category_id = category_id
     update_product.stock = stock
     update_product.description = description
+    update_product.uom = uom
     
     db.commit()
     db.refresh(update_product)
@@ -116,7 +117,7 @@ async def update(
 
 
 @routers.delete("/{id}")
-async def delete(id:int,db : Session = Depends(get_db),current_user:ShowProductBaseModel = Depends(get_current_user)):
+async def delete(id:int,db : Session = Depends(get_db)):
     product_delete = db.query(Product).filter(Product.id ==id).first()
     if not product_delete :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"product{id} is not found")

@@ -28,8 +28,7 @@ async def create_supplier(
     email : str = Form(...),
     address : str = Form(...),
     upload_file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user:SupplierModel = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
 
     if upload_file:
@@ -56,13 +55,13 @@ async def create_supplier(
 
 
 @routers.get("/", response_model=List[SupplierModel])
-async def get_supplier(db: Session = Depends(get_db),current_user:SupplierModel = Depends(get_current_user)):
+async def get_supplier(db: Session = Depends(get_db)):
     suppliers = db.query(Supplier).all()
     return suppliers
 
 
 @routers.get("/{id}", response_model=SupplierModel)
-async def get_supplier_by_id(id: int, db: Session = Depends(get_db),current_user:SupplierModel = Depends(get_current_user)):
+async def get_supplier_by_id(id: int, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.id == id).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
@@ -110,7 +109,7 @@ async def update_supplier(id:int , name : str = Form(...),
 @routers.delete("/{id}",response_model=SupplierModel)
 
 
-async def delete_supplier(id : int, db: Session = Depends(get_db),current_user:SupplierModel = Depends(get_current_user)):
+async def delete_supplier(id : int, db: Session = Depends(get_db)):
     delete_supplier = db.query(Supplier).filter(Supplier.id == id).first()
     if not delete_supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")

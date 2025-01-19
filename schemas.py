@@ -103,6 +103,7 @@ class ProductModel(BaseModel):
     stock : int
     cost_price : float
     image : str
+    uom : str
     class Config():
        from_attributes = True 
 
@@ -117,6 +118,7 @@ class ShowProductBaseModel(BaseModel):
     stock: int
     cost_price: float
     image: str
+    uom : str
 
     class Config():
         from_attributes = True
@@ -135,6 +137,7 @@ class TransactionModel(BaseModel):
     profit: Optional[float] = None
     loss: Optional[float] = None
     current_cash : Optional[float] = None
+    uom : str
     class Config():
         from_attributes = True 
 

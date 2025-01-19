@@ -12,7 +12,7 @@ routers = APIRouter(
     tags=['Cash']
 )
 @routers.post("/")
-async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db) ,current_user:CurrentCashBaseModel = Depends(get_current_user)):
+async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db)):
 
 
     cash_amount = 0
@@ -43,12 +43,12 @@ async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db
     }
 
 @routers.get("/",response_model=List[CashModel])
-async def get(db:Session = Depends(get_db), current_user:CashModel = Depends(get_current_user)):
+async def get(db:Session = Depends(get_db)):
     cash = db.query(CurrentCash).all()
     return cash
 
 @routers.delete("/{id}")
-async def get(id:int,db:Session = Depends(get_db) , current_user:CurrentCashBaseModel = Depends(get_current_user)):
+async def get(id:int,db:Session = Depends(get_db)):
 
     cash = db.query(CurrentCash).filter(CurrentCash.id == id).first()
     if not cash:
