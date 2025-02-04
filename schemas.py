@@ -9,6 +9,13 @@ class UserAdminRole(str,Enum):
     CASHIER = "cashier"
     MANAGER = "manager"
 
+class TshirtSize(str, Enum):
+    S = "S"
+    M = "M"
+    L = "L"
+    XL = "XL"
+    XXL = "XXL"
+
 
 class PaymentRole(str,Enum):
     CREDIT = "credit"
@@ -54,7 +61,7 @@ class CashModel(BaseModel):
 class SupplierModel(BaseModel):
     id : int
     name : str
-    contact : str
+    contact : int
     email : str
     address : str
     image : str
@@ -103,7 +110,7 @@ class ProductModel(BaseModel):
     stock : int
     cost_price : float
     image : str
-    uom : str
+    sizes: List[str]
     class Config():
        from_attributes = True 
 
@@ -118,11 +125,10 @@ class ShowProductBaseModel(BaseModel):
     stock: int
     cost_price: float
     image: str
-    uom : str
+    sizes: List[str]
 
     class Config():
         from_attributes = True
-
 
 class TransactionModel(BaseModel):
     id: int
@@ -137,11 +143,8 @@ class TransactionModel(BaseModel):
     profit: Optional[float] = None
     loss: Optional[float] = None
     current_cash : Optional[float] = None
-    uom : str
     class Config():
         from_attributes = True 
-
-
 
 
 class Login(BaseModel):

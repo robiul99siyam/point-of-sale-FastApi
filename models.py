@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, func
+from sqlalchemy import Column, Integer, String, Float, ForeignKey,ARRAY
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -38,7 +38,7 @@ class DayClosure(Base):
 class Supplier(Base):
     __tablename__ = "suppliers"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False, index=True)
+    name = Column(Integer, nullable=False, index=True)
     contact = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
     address = Column(String, nullable=False)
@@ -63,13 +63,15 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
     description = Column(String, nullable=True)
-    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"))
     stock = Column(Integer, nullable=False, default=0)
     cost_price = Column(Float, nullable=False)
     selling_price = Column(Float, nullable=False)
-    supplier_id = Column(Integer, ForeignKey("suppliers.id", ondelete="SET NULL"))
     image = Column(String, nullable=True)
-    uom = Column(String,nullable=True)
+    sizes = Column(ARRAY(String), nullable=True)  # Or appropriate data type
+
+    
+    supplier_id = Column(Integer, ForeignKey("suppliers.id", ondelete="SET NULL"))
+    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"))
     
     # Relationships
     category = relationship("Category", back_populates="products")
@@ -104,8 +106,7 @@ class Transaction(Base):
     profit = Column(Float, nullable=True)
     loss = Column(Float, nullable=True)
     current_cash = Column(Float, nullable=True)
-    uom = Column(String,nullable=True)
-    
+   
     # Relationships
     user = relationship("User", back_populates="transactions")
     product = relationship("Product", back_populates="transactions")
@@ -118,4 +119,4 @@ class Transaction(Base):
         
     #     if self.payment_method.lower() == "cash":
     #         current_cash_record.current_cash = max(0, current_cash_record.current_cash - self.subtotal)
-    #         db_session.commit()
+    #  

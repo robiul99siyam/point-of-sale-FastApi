@@ -15,7 +15,7 @@ DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-# SQLALCHEMY_DATABASE_URL = 'sqlite:///./blog.db'
+# SQLALCHEMY_DATABASE_URL = 'sqlite:///./DD.db'
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

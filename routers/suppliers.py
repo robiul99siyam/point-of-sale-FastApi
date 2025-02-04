@@ -24,13 +24,19 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @routers.post("/")
 async def create_supplier(
     name : str = Form(...),
-    contact : str = Form(...),
+    contact : int = Form(...),
     email : str = Form(...),
     address : str = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
 
+    existing_supplier = db.query(Supplier).filter(Supplier.email == email).first()
+    if existing_supplier:
+        raise HTTPException(
+            status_code=400, detail=f"A supplier with the email '{email}' already exists."
+        )
+    
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
         if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from uuid import uuid4
 import os
 from typing import List
-from schemas import ShowProductBaseModel
+from schemas import ShowProductBaseModel,TshirtSize
 from oauth2 import get_current_user
 
 
@@ -22,19 +22,22 @@ UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
+
 @routers.post("/")
 async def create_product(
-    name : str = Form(...),
-    selling_price : float = Form(...),
-    description : Optional[str] = Form(None),
-    cost_price : str = Form(...),
-    uom : str = Form(...),
-    stock : int = Form(...),
-    supplier_id : int = Form(...),
-    category_id : int = Form(...),
+    name: str = Form(...),
+    selling_price: float = Form(...),
+    description: Optional[str] = Form(None),
+    cost_price: str = Form(...),
+    sizes: List[str] = Form(...),  # Keep as string to parse later
+    stock: int = Form(...),
+    supplier_id: int = Form(...),
+    category_id: int = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+
+    sizes_list = [size.strip().upper() for size in sizes[0].split(",")]
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
         if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
@@ -47,11 +50,22 @@ async def create_product(
         with open(file_path, "wb") as f:
             f.write(await upload_file.read())
 
-        image_url = file_path  # Store the file path as the image URL
+        image_url = file_path
     else:
         image_url = None
-    
-    new_product = Product(name=name, selling_price=selling_price, stock=stock, description=description, cost_price=cost_price, supplier_id=supplier_id, category_id=category_id, image=image_url , uom=uom)
+
+    # Create a new product
+    new_product = Product(
+        name=name,
+        selling_price=selling_price,
+        stock=stock,
+        description=description,
+        cost_price=cost_price,
+        supplier_id=supplier_id,
+        category_id=category_id,
+        image=image_url,
+        sizes=sizes_list  # Use the parsed list here
+    )
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -74,13 +88,14 @@ async def update(
     selling_price: float = Form(...),
     description: Optional[str] = Form(None),
     cost_price: str = Form(...),
-    uom: str = Form(...),
+    sizes: List[str] = Form(...), 
     stock: int = Form(...),
     supplier_id: int = Form(...),
     category_id: int = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+    sizes_list = [size.strip().upper() for size in sizes[0].split(",")]
     if upload_file:
         file_extension = os.path.splitext(upload_file.filename)[-1]
         if file_extension.lower() not in [".jpg", ".jpeg", ".png"]:
@@ -111,7 +126,7 @@ async def update(
     update_product.category_id = category_id
     update_product.stock = stock
     update_product.description = description
-    update_product.uom = uom
+    update_product.sizes = sizes_list
 
     db.commit()
     db.refresh(update_product)
