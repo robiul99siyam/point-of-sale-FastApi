@@ -1,3 +1,4 @@
+![Image](https://github.com/user-attachments/assets/795630db-6322-40d1-a2ad-91bd61a0ecfc)
 # 🔐 Point of Sales Server API Routes
 
 ## Getting started
