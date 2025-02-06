@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Form ,Depends,HTTPException,status
 from fastapi.staticfiles import StaticFiles
-from schemas import TransactionModel,PaymentRole
+from schemas import TransactionModel,PaymentRole,ShowTransactionModel
 from models import Transaction,Product,CurrentCash,User
 from database import get_db
 from sqlalchemy.orm import Session
@@ -22,7 +22,7 @@ UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-@routers.post("/",status_code=status.HTTP_201_CREATED)
+@routers.post("/")
 async def create_transaction(
     user_id: int = Form(...),
     product_id: int = Form(...),
@@ -99,7 +99,7 @@ async def create_transaction(
 
     return new_transaction
 
-@routers.get("/",response_model=List[TransactionModel],status_code=status.HTTP_200_OK)
+@routers.get("/",response_model=List[ShowTransactionModel],status_code=status.HTTP_200_OK)
 async def get_transactions( db: Session = Depends(get_db)):
     transactions = db.query(Transaction).all()
     return transactions

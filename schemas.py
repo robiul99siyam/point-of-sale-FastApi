@@ -144,6 +144,23 @@ class TransactionModel(BaseModel):
     loss: Optional[float] = None
     current_cash : Optional[float] = None
     class Config():
+        from_attributes  = True 
+
+class ShowTransactionModel(BaseModel):
+    id: int
+    user: Optional[ShowUserBaseModel] = None
+    product: Optional[ShowProductBaseModel] = None  
+    quantity: int
+    unit_price: float
+    subtotal: float
+    customer: Optional[CustomModel] = None  
+    payment_method: PaymentRole
+    date: Optional[str] = None
+    profit: Optional[float] = None
+    loss: Optional[float] = None
+    current_cash: Optional[float] = None
+
+    class Config():
         from_attributes = True 
 
 
