@@ -32,14 +32,14 @@ class UserModel(BaseModel):
 
 
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 
 class CurrentCashBaseModel(BaseModel):
     current_cash : float
     user_id  : int
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 
 class ShowUserBaseModel(BaseModel):
@@ -47,7 +47,7 @@ class ShowUserBaseModel(BaseModel):
     id:int
     username : str
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 class CashModel(BaseModel):
     id:int
@@ -55,7 +55,7 @@ class CashModel(BaseModel):
     user : Optional[ShowUserBaseModel] = None
 
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 
 class SupplierModel(BaseModel):
@@ -67,26 +67,26 @@ class SupplierModel(BaseModel):
     image : str
 
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 class Supplier(BaseModel):
     id : int
     name : str
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
     class Config():
-       from_attributes = True 
+       orm_mode  = True 
 
 class Category(BaseModel):
     id : int
     name:str
     class Config():
-       from_attributes = True 
+       orm_mode  = True 
 
 class CustomModel(BaseModel):
     id : int
@@ -97,7 +97,7 @@ class CustomModel(BaseModel):
     image: str
 
     class Config():
-        from_attributes = True 
+        orm_mode  = True 
 
 
 class ProductModel(BaseModel):
@@ -112,7 +112,7 @@ class ProductModel(BaseModel):
     image : str
     sizes: List[str]
     class Config():
-       from_attributes = True 
+       orm_mode  = True 
 
 
 class ShowProductBaseModel(BaseModel):
@@ -128,7 +128,7 @@ class ShowProductBaseModel(BaseModel):
     sizes: List[str]
 
     class Config():
-        from_attributes = True
+        orm_mode  = True
 
 class TransactionModel(BaseModel):
     id: int
@@ -144,7 +144,7 @@ class TransactionModel(BaseModel):
     loss: Optional[float] = None
     current_cash : Optional[float] = None
     class Config():
-        from_attributes  = True 
+        orm_mode   = True 
 
 class ShowTransactionModel(BaseModel):
     id: int
@@ -161,7 +161,7 @@ class ShowTransactionModel(BaseModel):
     current_cash: Optional[float] = None
 
     class Config():
-        from_attributes = True 
+        orm_mode  = True 
 
 
 class Login(BaseModel):
