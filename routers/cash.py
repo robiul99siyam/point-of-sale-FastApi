@@ -11,25 +11,59 @@ routers = APIRouter(
     prefix="/api/cash",
     tags=['Cash']
 )
+# @routers.post("/")
+# async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db)):
+
+
+#     cash_amount = 0
+
+#     for item in request:
+#         cash_amount += item.current_cash
+
+#     user_id = item.user_id
+#     date = item.date  # Assuming date is provided in the first item of the list
+#     existing_cash_record = db.query(CurrentCash).filter_by(user_id=user_id).first()
+
+#     if existing_cash_record:
+       
+#         existing_cash_record.current_cash += cash_amount
+#         existing_cash_record.date = date
+#     else:
+#         cash = CurrentCash(
+#             user_id=user_id,
+#             current_cash=cash_amount,
+#             date = date
+#         )
+#         db.add(cash)
+
+#     db.commit()
+
+#     updated_cash_record = db.query(CurrentCash).filter_by(user_id=user_id).first()
+
+#     return {
+#         "message": "Cash updated successfully",
+#         "total_cash": updated_cash_record.current_cash ,
+#         "date": updated_cash_record.date  
+#     }
+
+
 @routers.post("/")
 async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db)):
 
+    cash_amount = sum(item.current_cash for item in request)  # ✅ Cleaner sum calculation
+    user_id = request[0].user_id  # ✅ Get user_id from the first item
+    date = request[0].date  # ✅ Get date from the first item
 
-    cash_amount = 0
-
-    for item in request:
-        cash_amount += item.current_cash
-
-    user_id = item.user_id
     existing_cash_record = db.query(CurrentCash).filter_by(user_id=user_id).first()
 
     if existing_cash_record:
-       
         existing_cash_record.current_cash += cash_amount
+        existing_cash_record.date = date  # ✅ Update date in existing record
     else:
         cash = CurrentCash(
             user_id=user_id,
-            current_cash=cash_amount
+            current_cash=cash_amount,
+            date=date  # ✅ Ensure date is saved
         )
         db.add(cash)
 
@@ -39,7 +73,8 @@ async def post(request: List[CurrentCashBaseModel], db: Session = Depends(get_db
 
     return {
         "message": "Cash updated successfully",
-        "total_cash": updated_cash_record.current_cash  # Reflect the actual updated value
+        "total_cash": updated_cash_record.current_cash,
+        "date": updated_cash_record.date  # ✅ Ensure date is included in the response
     }
 
 @routers.get("/",response_model=List[CashModel])

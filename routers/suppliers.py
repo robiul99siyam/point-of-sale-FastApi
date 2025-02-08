@@ -24,8 +24,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @routers.post("/")
 async def create_supplier(
     name : str = Form(...),
-    contact : int = Form(...),
     email : str = Form(...),
+    contact: int = Form(...), 
     address : str = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -52,7 +52,7 @@ async def create_supplier(
         image_url = file_path  # Store the file path as the image URL
     else:
         image_url = None
-    new_supplier = Supplier(name=name, contact=contact,email=email,address=address, image= image_url)
+    new_supplier = Supplier(name=name, contact = contact,email=email,address=address, image= image_url)
     db.add(new_supplier)
     db.commit()
     db.refresh(new_supplier)
@@ -74,9 +74,10 @@ async def get_supplier_by_id(id: int, db: Session = Depends(get_db)):
     return supplier
 @routers.put('/{id}', response_model=SupplierModel)
 
-async def update_supplier(id:int , name : str = Form(...),
-    contact : str = Form(...),
+async def update_supplier(id:int , 
+    name : str = Form(...),
     email : str = Form(...),
+    contact : int = Form(...),
     address : str = Form(...),
     upload_file: UploadFile = File(...),
     db: Session = Depends(get_db)):
@@ -102,8 +103,8 @@ async def update_supplier(id:int , name : str = Form(...),
         raise HTTPException(status_code=404, detail="Supplier not found")
     
     update_supplier.name = name
-    update_supplier.contact = contact
     update_supplier.email = email
+    update_supplier.contact = contact
     update_supplier.address = address
     update_supplier.image = image_url
     

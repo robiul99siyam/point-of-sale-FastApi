@@ -103,3 +103,21 @@ async def create_transaction(
 async def get_transactions( db: Session = Depends(get_db)):
     transactions = db.query(Transaction).all()
     return transactions
+
+
+@routers.delete("/{id}", response_model=ShowTransactionModel)
+async def delete_transaction(id: int, db: Session = Depends(get_db)):
+    transaction = db.query(Transaction).filter_by(id=id).first()
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    # Ensure relationships are loaded before deletion
+    _ = transaction.user  # Force-load user
+    _ = transaction.product  # Force-load product
+    _ = transaction.customer  # Force-load customer
+
+    db.delete(transaction)
+    db.commit()
+    
+    return transaction  

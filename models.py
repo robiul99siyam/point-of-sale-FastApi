@@ -21,6 +21,7 @@ class CurrentCash(Base):
     __tablename__ = "current_cash"
     id = Column(Integer, primary_key=True, index=True)
     current_cash = Column(Float, default=0.0, nullable=False)
+    date = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     
     user = relationship("User", back_populates="current_cash")
@@ -38,9 +39,9 @@ class DayClosure(Base):
 class Supplier(Base):
     __tablename__ = "suppliers"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(Integer, nullable=False, index=True)
-    contact = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False, index=True)
+    name = Column(String, nullable=False)
+    contact = Column(Integer,nullable=False)
+    email = Column(String, unique=True, nullable=False)
     address = Column(String, nullable=False)
     image = Column(String, nullable=True)
     

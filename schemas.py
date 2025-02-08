@@ -38,6 +38,7 @@ class UserModel(BaseModel):
 class CurrentCashBaseModel(BaseModel):
     current_cash : float
     user_id  : int
+    date : str
     class Config():
         orm_mode  = True
 
@@ -52,6 +53,7 @@ class ShowUserBaseModel(BaseModel):
 class CashModel(BaseModel):
     id:int
     current_cash : float
+    date : str
     user : Optional[ShowUserBaseModel] = None
 
     class Config():
@@ -61,7 +63,7 @@ class CashModel(BaseModel):
 class SupplierModel(BaseModel):
     id : int
     name : str
-    contact : int
+    contact:int
     email : str
     address : str
     image : str
