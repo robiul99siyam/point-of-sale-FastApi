@@ -1,4 +1,4 @@
-from pydantic import BaseModel 
+from pydantic import BaseModel , ConfigDict
 from typing import List,Optional
 from enum import Enum
 
@@ -29,26 +29,23 @@ class UserModel(BaseModel):
     password: str
     role: UserAdminRole
     image: str
-
-
-    class Config():
-        orm_mode  = True
+    model_config = ConfigDict(from_attributes=True) 
 
 
 class CurrentCashBaseModel(BaseModel):
     current_cash : float
     user_id  : int
     date : str
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 
 class ShowUserBaseModel(BaseModel):
 
     id:int
     username : str
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 class CashModel(BaseModel):
     id:int
@@ -56,8 +53,8 @@ class CashModel(BaseModel):
     date : str
     user : Optional[ShowUserBaseModel] = None
 
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 
 class SupplierModel(BaseModel):
@@ -68,27 +65,27 @@ class SupplierModel(BaseModel):
     address : str
     image : str
 
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 class Supplier(BaseModel):
     id : int
     name : str
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 class CategoryModel(BaseModel):
     id : int
     name : str
     image : str
-    class Config():
-       orm_mode  = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 class Category(BaseModel):
     id : int
     name:str
-    class Config():
-       orm_mode  = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 class CustomModel(BaseModel):
     id : int
@@ -98,8 +95,8 @@ class CustomModel(BaseModel):
     address: str
     image: str
 
-    class Config():
-        orm_mode  = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 
 class ProductModel(BaseModel):
@@ -113,8 +110,8 @@ class ProductModel(BaseModel):
     cost_price : float
     image : str
     sizes: List[str]
-    class Config():
-       orm_mode  = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 
 class ShowProductBaseModel(BaseModel):
@@ -129,8 +126,8 @@ class ShowProductBaseModel(BaseModel):
     image: str
     sizes: List[str]
 
-    class Config():
-        orm_mode  = True
+    
+    model_config = ConfigDict(from_attributes=True) 
 
 class TransactionModel(BaseModel):
     id: int
@@ -145,8 +142,8 @@ class TransactionModel(BaseModel):
     profit: Optional[float] = None
     loss: Optional[float] = None
     current_cash : Optional[float] = None
-    class Config():
-        orm_mode   = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 class ShowTransactionModel(BaseModel):
     id: int
@@ -162,8 +159,8 @@ class ShowTransactionModel(BaseModel):
     loss: Optional[float] = None
     current_cash: Optional[float] = None
 
-    class Config():
-        orm_mode  = True 
+    
+    model_config = ConfigDict(from_attributes=True)  
 
 
 class Login(BaseModel):
@@ -185,8 +182,7 @@ class DayClosedBaseMode(BaseModel):
     closure_date : str
     closed_cash : float
 
-    class Config():
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)  
 
 
 class ShowDayClosedBaseMode(BaseModel):
@@ -194,5 +190,4 @@ class ShowDayClosedBaseMode(BaseModel):
     closure_date : str
     closed_cash : float
 
-    class Config():
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
