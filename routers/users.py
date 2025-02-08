@@ -22,7 +22,6 @@ UPLOAD_DIR = "uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-
 @routers.post('/')
 async def create_user(
     username: str = Form(...),
@@ -40,27 +39,28 @@ async def create_user(
         filename = f"{uuid4().hex}{file_extension}"
         file_path = os.path.join(UPLOAD_DIR, filename)
 
-        # Save the file to the uploads directory
         with open(file_path, "wb") as f:
             f.write(await image.read())
 
-        image_url = f"/uploads/{filename}"  # Set public URL for image
+        image_url = f"/uploads/{filename}"  
     else:
         image_url = None
 
-    # Create a new user in the database
+    # Convert Enum to string
     hashPassword = Hash.bcrypt(password)
     new_user = User(
         username=username,
         password=hashPassword,
-        role=role,
+        role=role.value,  
         image=image_url
     )
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
     return new_user
+
 
 
 
