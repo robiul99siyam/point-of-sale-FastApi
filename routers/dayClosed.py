@@ -16,25 +16,18 @@ routers = APIRouter(
 async def post(request: DayClosedBaseMode, db: Session = Depends(get_db)):
     user = db.query(CurrentCash).filter_by(user_id=request.user_id).first()
 
+    if not user :
+        raise HTTPException(status_code=404, detail="User not found")
     if user:
         user.current_cash -= request.closed_cash
         db.add(user)
         db.commit()
         db.refresh(user)
 
-    try:
-        # Convert closure_date to a proper datetime object
-        closure_date = datetime.strptime(request.closure_date, "%m-%d-%Y").date()
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use MM-DD-YYYY."
-        )
-
     new_dayclosed = DayClosure(
         user_id=request.user_id,
         closed_cash=request.closed_cash,
-        closure_date=closure_date
+        closure_date=request.closure_date
     )
     db.add(new_dayclosed)
     db.commit()

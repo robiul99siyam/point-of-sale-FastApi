@@ -128,4 +128,4 @@ async def delete_user(id : int,db : Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(user)
     db.commit()
-    return f"{id}/{user.username} deleted"
+    return user
