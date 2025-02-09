@@ -1,3 +1,4 @@
+import psycopg2
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,6 +17,19 @@ DB_NAME = os.getenv("DB_NAME")
 
 
 
+try:
+    conn = psycopg2.connect(
+        dbname=DB_NAME,
+        user=DB_USERNAME,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT
+    )
+    print("Connection successful!")
+    conn.close()
+
+except Exception as e:
+    print("Connection failed:", e)
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 # SQLALCHEMY_DATABASE_URL = 'sqlite:///./DD.db'
 
